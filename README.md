@@ -22,7 +22,11 @@ dependencies, no backend — just open it and type.
 - **Detailed results** — net WPM, raw WPM, accuracy, consistency, character counts,
   and a WPM‑over‑time graph with error markers.
 - **Personal bests & history** — your results are saved locally (per language + mode)
-  in `localStorage`. Nothing leaves your machine.
+  in `localStorage`, private to your device.
+- **Global leaderboard (optional)** — opt-in shared rankings for every
+  language + difficulty combo, backed by a free Supabase project. Submit your score
+  from the results screen and see who's fastest. Off until you add your keys
+  ([setup below](#leaderboard-setup-supabase)).
 - **9 themes** — serika dark, dracula, nord, gruvbox, monokai, tokyo night, coral,
   matrix, and serika light. Your choice is remembered.
 
@@ -57,9 +61,11 @@ Codemonkey/
 ├── css/
 │   └── style.css       # layout + all theme palettes (CSS variables)
 └── js/
-    ├── themes.js       # theme registry + apply/persist
-    ├── snippets.js     # the code you type, per language
-    └── app.js          # typing engine, stats, graph, persistence
+    ├── themes.js             # theme registry + apply/persist
+    ├── snippets.js           # the code you type, per language
+    ├── leaderboard-config.js # your Supabase url + anon key (fill in to enable)
+    ├── leaderboard.js        # leaderboard data layer (submit / fetch)
+    └── app.js                # typing engine, stats, graph, persistence
 ```
 
 ### Adding snippets
@@ -74,6 +80,61 @@ auto‑indentation and normalisation. Adding a whole new language is just a new 
 Add a `[data-theme="your_theme"]` block of CSS variables in
 [`css/style.css`](css/style.css) and a matching entry in the `THEMES` list in
 [`js/themes.js`](js/themes.js).
+
+## Leaderboard setup (Supabase)
+
+The global leaderboard is **optional** and stays off until you connect a free
+[Supabase](https://supabase.com) project. Everything else (typing test, personal
+bests, history) works without it.
+
+1. Create a project at [supabase.com](https://supabase.com) — the free tier is plenty.
+2. Open the project's **SQL Editor** and run this once:
+
+   ```sql
+   create table if not exists public.scores (
+     id           bigint generated always as identity primary key,
+     created_at   timestamptz not null default now(),
+     name         text not null check (char_length(name) between 1 and 24),
+     language     text not null,
+     mode         text not null,
+     value        int  not null,
+     wpm          int  not null check (wpm >= 0 and wpm <= 400),
+     raw_wpm      int  not null default 0,
+     accuracy     int  not null check (accuracy >= 0 and accuracy <= 100),
+     consistency  int  not null default 0
+   );
+
+   alter table public.scores enable row level security;
+
+   create policy "public read scores"  on public.scores for select using (true);
+   create policy "public insert scores" on public.scores for insert with check (
+     char_length(name) between 1 and 24
+     and wpm between 0 and 400
+     and accuracy between 0 and 100
+   );
+
+   create index if not exists scores_board_idx
+     on public.scores (language, mode, value, wpm desc);
+   ```
+
+   Anyone can read the board and submit a score, but **not** edit or delete others'
+   scores (there are no update/delete policies).
+
+3. In **Project Settings → API**, copy the **Project URL** and the **anon / public**
+   key into [`js/leaderboard-config.js`](js/leaderboard-config.js):
+
+   ```js
+   window.LEADERBOARD_CONFIG = {
+     url: "https://YOUR-PROJECT.supabase.co",
+     anonKey: "eyJ...your anon public key..."
+   };
+   ```
+
+   These are public keys and safe to commit. Push, and the 🏆 leaderboard lights up.
+
+**Fairness note:** with no server to validate runs, a determined person can submit a
+fake score. The `wpm <= 400` check and read-only policies stop the worst of it, but
+treat the board as fun, not gospel.
 
 ## Deployment (GitHub Pages)
 

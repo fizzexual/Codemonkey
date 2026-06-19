@@ -24,6 +24,13 @@
     language: "javascript"
   };
 
+  // leaderboard view state
+  var lastResult = null;     // most recent finished test (for submission)
+  var submitting = false;
+  var lbState = { language: "javascript", mode: "time", value: 60, highlight: "" };
+
+  function currentValue() { return config.mode === "time" ? config.timeLimit : config.snippetCount; }
+
   /* ---------- runtime state ---------- */
   var st = null;
   function freshState() {
@@ -80,6 +87,19 @@
     el.historyToggle = document.getElementById("leaderboard-toggle");
     el.closeHistory = document.getElementById("close-history");
     el.clearHistory = document.getElementById("clear-history");
+    // leaderboard
+    el.lbOpen = document.getElementById("lb-open");
+    el.lbOverlay = document.getElementById("lb-overlay");
+    el.lbClose = document.getElementById("lb-close");
+    el.lbFilters = document.querySelector(".lb-filters");
+    el.lbFLang = document.getElementById("lb-f-lang");
+    el.lbFMode = document.getElementById("lb-f-mode");
+    el.lbFValue = document.getElementById("lb-f-value");
+    el.lbBody = document.getElementById("lb-body");
+    el.lbSubmitRow = document.getElementById("lb-submit-row");
+    el.lbName = document.getElementById("lb-name");
+    el.lbSubmitBtn = document.getElementById("lb-submit-btn");
+    el.lbSubmitMsg = document.getElementById("lb-submit-msg");
   }
 
   /* ---------- persistence ---------- */
@@ -406,6 +426,12 @@
     el.rPb.textContent = record.pb ? record.pb.wpm + " wpm" : "—";
     el.pbFlag.hidden = !record.isNewPb;
 
+    lastResult = {
+      language: config.language, mode: config.mode, value: currentValue(),
+      wpm: wpm, raw: raw, accuracy: acc, consistency: cons
+    };
+    renderSubmitRow();
+
     el.testPanel.hidden = true;
     el.results.hidden = false;
     drawGraph(st.samples);
@@ -581,6 +607,130 @@
     } catch (e) { return ""; }
   }
 
+  /* ---------- leaderboard ---------- */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function medal(n) { return n === 1 ? "🥇" : n === 2 ? "🥈" : "🥉"; }
+
+  function setSubmitMsg(text, cls) {
+    el.lbSubmitMsg.textContent = text;
+    el.lbSubmitMsg.className = "lb-submit-msg" + (cls ? " " + cls : "");
+  }
+  function renderSubmitRow() {
+    if (!window.Leaderboard || !window.Leaderboard.isConfigured()) {
+      el.lbSubmitRow.hidden = true;
+      return;
+    }
+    el.lbSubmitRow.hidden = false;
+    el.lbName.value = window.Leaderboard.getName();
+    el.lbSubmitBtn.disabled = false;
+    submitting = false;
+    setSubmitMsg("", "");
+  }
+  function doSubmit() {
+    if (submitting || !lastResult || !window.Leaderboard) return;
+    var name = el.lbName.value.trim();
+    if (!name) { setSubmitMsg("enter a name first", "err"); el.lbName.focus(); return; }
+    window.Leaderboard.setName(name);
+    submitting = true;
+    el.lbSubmitBtn.disabled = true;
+    setSubmitMsg("submitting…", "");
+    window.Leaderboard.submitScore({
+      name: name,
+      language: lastResult.language, mode: lastResult.mode, value: lastResult.value,
+      wpm: lastResult.wpm, raw: lastResult.raw,
+      accuracy: lastResult.accuracy, consistency: lastResult.consistency
+    }).then(function () {
+      setSubmitMsg("submitted! 🎉", "ok");
+      submitting = false;
+      openLeaderboard(lastResult.language, lastResult.mode, lastResult.value, name);
+    }).catch(function (err) {
+      submitting = false;
+      el.lbSubmitBtn.disabled = false;
+      setSubmitMsg(err && err.message ? err.message : "submit failed", "err");
+    });
+  }
+
+  function openLeaderboard(lang, mode, value, highlight) {
+    el.lbOverlay.hidden = false;
+    if (!window.Leaderboard || !window.Leaderboard.isConfigured()) {
+      el.lbFilters.style.display = "none";
+      el.lbBody.innerHTML = '<div class="lb-msg">the leaderboard is not connected yet.<br><br>' +
+        'add your Supabase <code>url</code> and <code>anonKey</code> to ' +
+        '<code>js/leaderboard-config.js</code> to turn it on.<br>' +
+        '(step-by-step setup is in the README)</div>';
+      return;
+    }
+    el.lbFilters.style.display = "";
+    lbState.language = lang || config.language;
+    lbState.mode = (mode === "time" || mode === "snippet") ? mode : config.mode;
+    lbState.value = (value != null) ? value : (lbState.mode === "time" ? config.timeLimit : config.snippetCount);
+    lbState.highlight = highlight || window.Leaderboard.getName();
+    buildLbFilters();
+    loadBoard();
+  }
+  function closeLeaderboard() { el.lbOverlay.hidden = true; }
+
+  function buildLbFilters() {
+    el.lbFLang.innerHTML = "";
+    LANGUAGES.forEach(function (l) {
+      var b = document.createElement("button");
+      b.className = "config-btn" + (l.id === lbState.language ? " active" : "");
+      b.textContent = l.name; b.dataset.lang = l.id;
+      el.lbFLang.appendChild(b);
+    });
+    el.lbFMode.innerHTML = "";
+    ["time", "snippet"].forEach(function (m) {
+      var b = document.createElement("button");
+      b.className = "config-btn" + (m === lbState.mode ? " active" : "");
+      b.textContent = m; b.dataset.mode = m;
+      el.lbFMode.appendChild(b);
+    });
+    var values = lbState.mode === "time" ? TIME_VALUES : SNIPPET_VALUES;
+    if (values.indexOf(lbState.value) < 0) lbState.value = values[0];
+    el.lbFValue.innerHTML = "";
+    values.forEach(function (v) {
+      var b = document.createElement("button");
+      b.className = "config-btn" + (v === lbState.value ? " active" : "");
+      b.textContent = String(v); b.dataset.value = v;
+      el.lbFValue.appendChild(b);
+    });
+  }
+
+  function loadBoard() {
+    el.lbBody.innerHTML = '<div class="lb-msg">loading…</div>';
+    var rl = lbState.language, rm = lbState.mode, rv = lbState.value;
+    window.Leaderboard.fetchBoard(rl, rm, rv).then(function (rows) {
+      if (rl !== lbState.language || rm !== lbState.mode || rv !== lbState.value) return; // stale
+      renderBoard(rows);
+    }).catch(function (err) {
+      el.lbBody.innerHTML = '<div class="lb-msg err">' + escapeHtml(err && err.message ? err.message : "failed to load") + "</div>";
+    });
+  }
+  function renderBoard(rows) {
+    if (!rows || rows.length === 0) {
+      el.lbBody.innerHTML = '<div class="lb-msg">no scores yet for this board — be the first! 🏁</div>';
+      return;
+    }
+    var html = '<div class="lb-table">';
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], rank = i + 1;
+      var cls = "lb-row" + (rank <= 3 ? " r" + rank : "") +
+        ((lbState.highlight && r.name === lbState.highlight) ? " me" : "");
+      html += '<div class="' + cls + '">' +
+        '<span class="lb-rank">' + (rank <= 3 ? medal(rank) : rank) + "</span>" +
+        '<span class="lb-rname">' + escapeHtml(r.name) + "</span>" +
+        '<span class="lb-rwpm">' + r.wpm + "</span>" +
+        '<span class="lb-racc">' + r.accuracy + "%</span>" +
+        "</div>";
+    }
+    html += "</div>";
+    el.lbBody.innerHTML = html;
+  }
+
   /* ---------- config UI ---------- */
   function buildValueButtons() {
     var values = config.mode === "time" ? TIME_VALUES : SNIPPET_VALUES;
@@ -625,6 +775,16 @@
     var tag = e.target && e.target.tagName;
     if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // an open panel swallows typing; Escape closes it
+    if (!el.lbOverlay.hidden) {
+      if (e.key === "Escape") { e.preventDefault(); closeLeaderboard(); }
+      return;
+    }
+    if (!el.historyDrawer.hidden) {
+      if (e.key === "Escape") { e.preventDefault(); closeHistoryDrawer(); }
+      return;
+    }
 
     // results screen shortcuts
     if (st && st.finished) {
@@ -691,6 +851,32 @@
       stats.history = [];
       saveStats(stats);
       renderHistory();
+    });
+
+    // leaderboard
+    el.lbOpen.addEventListener("click", function () {
+      openLeaderboard(config.language, config.mode, currentValue());
+      el.lbOpen.blur();
+    });
+    el.lbClose.addEventListener("click", closeLeaderboard);
+    el.lbOverlay.addEventListener("click", function (e) {
+      if (e.target === el.lbOverlay) closeLeaderboard();
+    });
+    el.lbFLang.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-lang]"); if (!b) return;
+      lbState.language = b.dataset.lang; buildLbFilters(); loadBoard(); b.blur();
+    });
+    el.lbFMode.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-mode]"); if (!b) return;
+      lbState.mode = b.dataset.mode; buildLbFilters(); loadBoard(); b.blur();
+    });
+    el.lbFValue.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-value]"); if (!b) return;
+      lbState.value = parseInt(b.dataset.value, 10); buildLbFilters(); loadBoard(); b.blur();
+    });
+    el.lbSubmitBtn.addEventListener("click", function () { doSubmit(); });
+    el.lbName.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doSubmit(); }
     });
 
     document.addEventListener("keydown", onKeyDown);
