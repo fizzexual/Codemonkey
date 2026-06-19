@@ -17,7 +17,7 @@
     <circle cx="164" cy="84" r="11" fill="#88c0d0"/>
     <circle cx="200" cy="84" r="11" fill="#ca4754"/>
   </g>
-  <text x="1108" y="92" text-anchor="end" class="mono" font-size="26" fill="#646669">wpm · accuracy · leaderboard</text>
+  <text x="1108" y="92" text-anchor="end" class="mono" font-size="26" fill="#646669">wpm · accuracy · consistency</text>
 
   <!-- wordmark -->
   <text x="88" y="220" class="mono" font-size="104" font-weight="700">

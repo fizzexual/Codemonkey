@@ -1,34 +1,60 @@
+<div align="center">
+
+<img src="https://fizzexual.github.io/Codemonkey/og-image.svg" alt="codemonkey — a typing test for code" width="100%" />
+
 # 🐒 codemonkey
 
-A minimalist typing‑speed test for developers — **[Monkeytype](https://monkeytype.com), but you type real code.**
+**[Monkeytype](https://monkeytype.com), but for code.**
+A minimalist typing‑speed test where you type real code snippets and measure your
+**WPM**, **accuracy**, and **consistency** — no sign‑up, no backend, no build step.
 
-Pick a language, pick a mode, and race through idiomatic snippets while codemonkey
-tracks your WPM, accuracy, consistency, and a live WPM graph. No build step, no
-dependencies, no backend — just open it and type.
+### [▶ Try it live](https://fizzexual.github.io/Codemonkey/)
 
-👉 **Live:** https://fizzexual.github.io/Codemonkey/
+[![live demo](https://img.shields.io/badge/live-demo-e2b714?style=flat-square)](https://fizzexual.github.io/Codemonkey/)
+![no build step](https://img.shields.io/badge/build-none-4b4d50?style=flat-square)
+![vanilla js](https://img.shields.io/badge/vanilla-JS-f7df1e?style=flat-square&labelColor=323437)
+![dependencies](https://img.shields.io/badge/dependencies-0-88c0d0?style=flat-square)
+[![license: MIT](https://img.shields.io/badge/license-MIT-bd93f9?style=flat-square)](LICENSE)
+
+</div>
 
 ---
 
+## Why
+
+Typing tests use prose. But the stuff developers actually type all day — brackets,
+semicolons, `camelCase`, indentation — never shows up. **codemonkey** drops real,
+idiomatic code in front of you and clocks how fast you can type it, the same clean
+way Monkeytype does for words.
+
 ## Features
 
-- **Real code, not prose** — snippets in JavaScript, Python, TypeScript, Java, and C++.
+- **Real code, not prose** — 40 idiomatic snippets across **JavaScript, Python, TypeScript, Java, and C++**.
 - **Smart auto‑indentation** — press `Enter` and the next line's leading whitespace is
-  filled in for you, so you only ever type the characters that matter.
+  filled in for you, so you only ever type the characters that matter (more below).
 - **Two modes**
-  - `time` — type as much as you can in 15 / 30 / 60 / 120 seconds.
-  - `snippet` — finish 1 / 3 / 5 complete snippets.
-- **Live stats** — WPM, accuracy, and a countdown/progress indicator while you type.
-- **Detailed results** — net WPM, raw WPM, accuracy, consistency, character counts,
-  and a WPM‑over‑time graph with error markers.
-- **Personal bests & history** — your results are saved locally (per language + mode)
-  in `localStorage`, private to your device.
-- **Global leaderboard (optional)** — opt-in shared rankings for every
-  language + difficulty combo, backed by a free Supabase project. Submit your score
-  from the results screen and see who's fastest. Off until you add your keys
-  ([setup below](#leaderboard-setup-supabase)).
+  - `time` — type as much as you can in **15 / 30 / 60 / 120** seconds.
+  - `snippet` — finish **1 / 3 / 5** complete snippets.
+- **Live + detailed stats** — live WPM/accuracy while typing, then a results screen with
+  net & raw WPM, accuracy, consistency, character counts, and a **WPM‑over‑time graph**
+  with error markers.
+- **Personal bests & history** — saved locally per language + mode in `localStorage`,
+  private to your device.
 - **9 themes** — serika dark, dracula, nord, gruvbox, monokai, tokyo night, coral,
-  matrix, and serika light. Your choice is remembered.
+  matrix, serika light. Your choice is remembered.
+- **Zero dependencies** — plain HTML, CSS, and JavaScript. No framework, no build, no server.
+
+## How the auto‑indentation works
+
+Code isn't a flat line of words — it has newlines and indentation, which would be
+miserable to type literally. So codemonkey handles whitespace for you:
+
+- Each line's **leading indentation** is auto‑filled the moment you enter the line.
+- You press `Enter` for a new line; the caret jumps straight to the first real character.
+- One `Backspace` at the start of a line cleanly unwinds the whole indent **and** the line break.
+
+The result: you type the *meaningful* characters at full speed, and your WPM reflects
+real typing — not how many spaces you can hammer.
 
 ## Keyboard shortcuts
 
@@ -36,17 +62,23 @@ dependencies, no backend — just open it and type.
 | --- | --- |
 | `Tab` | restart with a new snippet |
 | `Esc` | reset the current test |
-| `Enter` | new line (leading indentation is auto‑filled) |
-| `Enter` / `Tab` (on results) | start the next test |
+| `Enter` | new line (indentation auto‑filled) |
+| `Enter` / `Tab` *(on results)* | start the next test |
 
-## Running locally
+> Input comes from a physical keyboard, so codemonkey is built for desktop.
 
-It's a static site — there is nothing to install or build.
+## Run it locally
+
+It's a static site — nothing to install or build.
 
 ```bash
-# just open it
-open index.html        # macOS
-start index.html       # Windows
+# clone
+git clone https://github.com/fizzexual/Codemonkey.git
+cd Codemonkey
+
+# open it directly…
+start index.html          # Windows
+open  index.html          # macOS
 
 # …or serve it (any static server works)
 python -m http.server 8000
@@ -57,107 +89,42 @@ python -m http.server 8000
 
 ```
 Codemonkey/
-├── index.html          # markup
+├── index.html        # markup
+├── og-image.svg      # social/link-preview card
+├── .nojekyll         # serve files as-is on GitHub Pages
 ├── css/
-│   └── style.css       # layout + all theme palettes (CSS variables)
+│   └── style.css     # layout + all 9 theme palettes (CSS variables)
 └── js/
-    ├── themes.js             # theme registry + apply/persist
-    ├── snippets.js           # the code you type, per language
-    ├── leaderboard-config.js # your Supabase url + anon key (fill in to enable)
-    ├── leaderboard.js        # leaderboard data layer (submit / fetch)
-    └── app.js                # typing engine, stats, graph, persistence
+    ├── themes.js     # theme registry + apply/persist
+    ├── snippets.js   # the code you type, per language
+    └── app.js        # typing engine, stats, graph, persistence
 ```
 
-### Adding snippets
+## Customizing
 
-Open [`js/snippets.js`](js/snippets.js) and add a string to the array for a language.
-Use spaces (not tabs) for indentation and skip trailing whitespace — `app.js` handles
-auto‑indentation and normalisation. Adding a whole new language is just a new key in
-`CODE_SNIPPETS` plus an entry in `LANGUAGES`.
+**Add a snippet** — drop a string into the relevant array in
+[`js/snippets.js`](js/snippets.js). Use spaces (not tabs) and skip trailing whitespace;
+the engine normalizes and auto‑indents for you.
 
-### Adding a theme
+**Add a language** — add a key to `CODE_SNIPPETS` plus an entry in `LANGUAGES` in the
+same file. The config bar and stats pick it up automatically.
 
-Add a `[data-theme="your_theme"]` block of CSS variables in
+**Add a theme** — add a `[data-theme="your_theme"]` block of CSS variables in
 [`css/style.css`](css/style.css) and a matching entry in the `THEMES` list in
 [`js/themes.js`](js/themes.js).
 
-## Leaderboard setup (Supabase)
+## Deployment
 
-The global leaderboard is **optional** and stays off until you connect a free
-[Supabase](https://supabase.com) project. Everything else (typing test, personal
-bests, history) works without it.
+Served straight from the repo root on **GitHub Pages** — no build. To host your own
+fork: **Settings → Pages → Build and deployment → Source → Deploy from a branch →
+`main` · `/ (root)`**. Every push to `main` redeploys automatically.
 
-1. Create a project at [supabase.com](https://supabase.com) — the free tier is plenty.
-2. Open the project's **SQL Editor** and run this once:
+## Built with
 
-   ```sql
-   create table if not exists public.scores (
-     id           bigint generated always as identity primary key,
-     created_at   timestamptz not null default now(),
-     name         text not null check (char_length(name) between 1 and 24),
-     language     text not null,
-     mode         text not null,
-     value        int  not null,
-     wpm          int  not null check (wpm >= 0 and wpm <= 400),
-     raw_wpm      int  not null default 0,
-     accuracy     int  not null check (accuracy >= 0 and accuracy <= 100),
-     consistency  int  not null default 0
-   );
-
-   alter table public.scores enable row level security;
-
-   -- newer Supabase projects are "secure by default" and don't grant the anon
-   -- role automatically — RLS policies still need underlying table privileges:
-   grant select, insert on table public.scores to anon, authenticated;
-
-   create policy "public read scores"  on public.scores for select using (true);
-   create policy "public insert scores" on public.scores for insert with check (
-     char_length(name) between 1 and 24
-     and wpm between 0 and 400
-     and accuracy between 0 and 100
-   );
-
-   create index if not exists scores_board_idx
-     on public.scores (language, mode, value, wpm desc);
-   ```
-
-   Anyone can read the board and submit a score, but **not** edit or delete others'
-   scores (there are no update/delete policies).
-
-3. In **Project Settings → API**, copy the **Project URL** and the **anon / public**
-   key into [`js/leaderboard-config.js`](js/leaderboard-config.js):
-
-   ```js
-   window.LEADERBOARD_CONFIG = {
-     url: "https://YOUR-PROJECT.supabase.co",
-     anonKey: "eyJ...your anon public key..."
-   };
-   ```
-
-   These are public keys and safe to commit. Push, and the 🏆 leaderboard lights up.
-
-**Fairness note:** with no server to validate runs, a determined person can submit a
-fake score. The `wpm <= 400` check and read-only policies stop the worst of it, but
-treat the board as fun, not gospel.
-
-## Deployment (GitHub Pages)
-
-This is a static site served straight from the repo root — no build step. Enable
-Pages once:
-
-> **Settings → Pages → Build and deployment → Source → _Deploy from a branch_ →
-> Branch: `main` · `/ (root)` → Save**
-
-The site goes live at `https://fizzexual.github.io/Codemonkey/` within a minute,
-and every push to `main` redeploys automatically. The included `.nojekyll` file
-tells Pages to serve the files as-is (no Jekyll processing).
-
-## Credits
-
-Inspired by the wonderful [Monkeytype](https://monkeytype.com). Built with plain
-HTML, CSS, and JavaScript. Fonts: [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
-and [Lexend Deca](https://fonts.google.com/specimen/Lexend+Deca).
+Plain **HTML · CSS · JavaScript**, the [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
+and [Lexend Deca](https://fonts.google.com/specimen/Lexend+Deca) fonts, and a lot of
+admiration for [Monkeytype](https://monkeytype.com).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © fizzexual
