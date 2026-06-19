@@ -9,7 +9,7 @@
 
   var cfg = window.LEADERBOARD_CONFIG || {};
   var BASE = (cfg.url || "").replace(/\/+$/, "");
-  var KEY = cfg.anonKey || "";
+  var KEY = cfg.anonKey || cfg.publishableKey || "";
   var NAME_KEY = "codemonkey-name";
   var MAX_WPM = 400; // sanity ceiling, mirrored by a DB check constraint
 

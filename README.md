@@ -106,6 +106,10 @@ bests, history) works without it.
 
    alter table public.scores enable row level security;
 
+   -- newer Supabase projects are "secure by default" and don't grant the anon
+   -- role automatically — RLS policies still need underlying table privileges:
+   grant select, insert on table public.scores to anon, authenticated;
+
    create policy "public read scores"  on public.scores for select using (true);
    create policy "public insert scores" on public.scores for insert with check (
      char_length(name) between 1 and 24

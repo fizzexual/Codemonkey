@@ -1,22 +1,19 @@
 /* ============================================================
    leaderboard-config.js — Supabase connection settings
    ------------------------------------------------------------
-   Fill these in with your own Supabase project values:
+   These are PUBLIC values and safe to commit:
+     • url      = your Supabase "Project URL"
+     • anonKey  = your Supabase PUBLISHABLE key (sb_publishable_…)
+                  — the browser/anon key, NOT the secret key.
 
-     Supabase dashboard → Project Settings → API
-       • url      = "Project URL"      (e.g. https://abcd1234.supabase.co)
-       • anonKey  = Project API keys → "anon" / "public"
+   NEVER put the secret key (sb_secret_…) here — it grants full
+   admin access and bypasses Row Level Security.
 
-   These are PUBLIC keys and safe to commit. The database is
-   protected by Row Level Security (see the SQL in README.md):
-   visitors can read the board and insert their own score, but
-   cannot edit or delete anyone's scores.
-
-   Until these are filled in, the leaderboard UI shows a friendly
-   "not configured yet" message and the rest of the site works
-   exactly as before.
+   The database is protected by Row Level Security + grants (see
+   README.md): visitors can read the board and insert their own
+   score, but cannot edit or delete anyone's scores.
    ============================================================ */
 window.LEADERBOARD_CONFIG = {
-  url: "YOUR_SUPABASE_URL",
-  anonKey: "YOUR_SUPABASE_ANON_KEY"
+  url: "https://jlcekfypmbggqbflwcus.supabase.co",
+  anonKey: "sb_publishable_7H4DBVwmqgFgVNrkaYRmtQ_2LrbYA1g"
 };
