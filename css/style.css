@@ -19,36 +19,92 @@
   --caret:   #e2b714;
 }
 [data-theme="dracula"] {
-  --bg:#282a36; --bg-alt:#21222c; --sub:#6272a4; --sub-alt:#44475a;
-  --text:#f8f8f2; --accent:#bd93f9; --error:#ff5555; --error-bg:#5c2626; --caret:#bd93f9;
+  --bg:#282a36; 
+  --bg-alt:#21222c;
+  --sub:#6272a4; 
+  --sub-alt:#44475a;
+  --text:#f8f8f2; 
+  --accent:#bd93f9; 
+  --error:#ff5555; 
+  --error-bg:#5c2626; 
+  --caret:#bd93f9;
 }
 [data-theme="nord"] {
-  --bg:#2e3440; --bg-alt:#272c36; --sub:#4c566a; --sub-alt:#3b4252;
-  --text:#d8dee9; --accent:#88c0d0; --error:#bf616a; --error-bg:#532f33; --caret:#88c0d0;
+  --bg:#2e3440; 
+  --bg-alt:#272c36; 
+  --sub:#4c566a; 
+  --sub-alt:#3b4252;
+  --text:#d8dee9; 
+  --accent:#88c0d0; 
+  --error:#bf616a; 
+  --error-bg:#532f33; 
+  --caret:#88c0d0;
 }
 [data-theme="gruvbox_dark"] {
-  --bg:#282828; --bg-alt:#1d2021; --sub:#665c54; --sub-alt:#504945;
-  --text:#ebdbb2; --accent:#d79921; --error:#fb4934; --error-bg:#5c2222; --caret:#fabd2f;
+  --bg:#282828; 
+  --bg-alt:#1d2021; 
+  --sub:#665c54; 
+  --sub-alt:#504945;
+  --text:#ebdbb2; 
+  --accent:#d79921; 
+  --error:#fb4934; 
+  --error-bg:#5c2222; 
+  --caret:#fabd2f;
 }
 [data-theme="monokai"] {
-  --bg:#272822; --bg-alt:#1d1e19; --sub:#75715e; --sub-alt:#49483e;
-  --text:#f8f8f2; --accent:#a6e22e; --error:#f92672; --error-bg:#5a1733; --caret:#a6e22e;
+  --bg:#272822; 
+  --bg-alt:#1d1e19; 
+  --sub:#75715e; 
+  --sub-alt:#49483e;
+  --text:#f8f8f2; 
+  --accent:#a6e22e; 
+  --error:#f92672; 
+  --error-bg:#5a1733; 
+  --caret:#a6e22e;
 }
 [data-theme="tokyo_night"] {
-  --bg:#1a1b26; --bg-alt:#16161e; --sub:#565f89; --sub-alt:#2a2e42;
-  --text:#c0caf5; --accent:#7aa2f7; --error:#f7768e; --error-bg:#4a2330; --caret:#7aa2f7;
+  --bg:#1a1b26; 
+  --bg-alt:#16161e; 
+  --sub:#565f89; 
+  --sub-alt:#2a2e42;
+  --text:#c0caf5; 
+  --accent:#7aa2f7; 
+  --error:#f7768e; 
+  --error-bg:#4a2330; 
+  --caret:#7aa2f7;
 }
 [data-theme="matrix"] {
-  --bg:#000800; --bg-alt:#000400; --sub:#1f6e1f; --sub-alt:#0c350c;
-  --text:#15ff00; --accent:#15ff00; --error:#ff003c; --error-bg:#3d0010; --caret:#15ff00;
+  --bg:#000800; 
+  --bg-alt:#000400; 
+  --sub:#1f6e1f; 
+  --sub-alt:#0c350c;
+  --text:#15ff00; 
+  --accent:#15ff00; 
+  --error:#ff003c; 
+  --error-bg:#3d0010; 
+  --caret:#15ff00;
 }
 [data-theme="serika_light"] {
-  --bg:#e1e1e3; --bg-alt:#d4d4d6; --sub:#aaaeb3; --sub-alt:#c2c2c4;
-  --text:#323437; --accent:#e2b714; --error:#da3333; --error-bg:#f5c2c2; --caret:#e2b714;
+  --bg:#e1e1e3; 
+  --bg-alt:#d4d4d6; 
+  --sub:#aaaeb3; 
+  --sub-alt:#c2c2c4;
+  --text:#323437; 
+  --accent:#e2b714; 
+  --error:#da3333; 
+  --error-bg:#f5c2c2; 
+  --caret:#e2b714;
 }
 [data-theme="coral"] {
-  --bg:#2b2438; --bg-alt:#231d2e; --sub:#6c5f80; --sub-alt:#3d3450;
-  --text:#f5e6e8; --accent:#ff7a8a; --error:#ff4d6d; --error-bg:#542030; --caret:#ff7a8a;
+  --bg:#2b2438; 
+  --bg-alt:#231d2e; 
+  --sub:#6c5f80; 
+  --sub-alt:#3d3450;
+  --text:#f5e6e8; 
+  --accent:#ff7a8a; 
+  --error:#ff4d6d; 
+  --error-bg:#542030; 
+  --caret:#ff7a8a;
 }
 
 /* ---------- reset & base ---------- */
