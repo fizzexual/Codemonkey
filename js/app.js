@@ -7,17 +7,17 @@
 (function () {
   "use strict";
 
-  var Themes = window.CodemonkeyThemes;
-  var SNIPPETS = window.CODE_SNIPPETS;
-  var LANGUAGES = window.LANGUAGES;
+  let Themes = window.CodemonkeyThemes;
+  let SNIPPETS = window.CODE_SNIPPETS;
+  let LANGUAGES = window.LANGUAGES;
 
   /* ---------- config (persisted) ---------- */
-  var TIME_VALUES = [15, 30, 60, 120];
-  var SNIPPET_VALUES = [1, 3, 5];
-  var CONFIG_KEY = "codemonkey-config";
-  var STATS_KEY = "codemonkey-stats";
+  let TIME_VALUES = [15, 30, 60, 120];
+  let SNIPPET_VALUES = [1, 3, 5];
+  let CONFIG_KEY = "codemonkey-config";
+  let STATS_KEY = "codemonkey-stats";
 
-  var config = {
+  let config = {
     mode: "time",        // "time" | "snippet"
     timeLimit: 60,       // seconds
     snippetCount: 3,     // snippets
@@ -25,7 +25,7 @@
   };
 
   /* ---------- runtime state ---------- */
-  var st = null;
+  let st = null;
   function freshState() {
     return {
       target: "",
@@ -47,7 +47,7 @@
   }
 
   /* ---------- element refs ---------- */
-  var el = {};
+  let el = {};
   function cacheEls() {
     el.modeGroup = document.getElementById("mode-group");
     el.valueGroup = document.getElementById("value-group");
@@ -85,7 +85,7 @@
   /* ---------- persistence ---------- */
   function loadConfig() {
     try {
-      var saved = JSON.parse(localStorage.getItem(CONFIG_KEY));
+      let saved = JSON.parse(localStorage.getItem(CONFIG_KEY));
       if (saved && typeof saved === "object") {
         if (saved.mode === "time" || saved.mode === "snippet") config.mode = saved.mode;
         if (TIME_VALUES.indexOf(saved.timeLimit) >= 0) config.timeLimit = saved.timeLimit;
@@ -99,7 +99,7 @@
   }
   function loadStats() {
     try {
-      var s = JSON.parse(localStorage.getItem(STATS_KEY));
+      let s = JSON.parse(localStorage.getItem(STATS_KEY));
       if (s && typeof s === "object") {
         return { pb: s.pb || {}, history: s.history || [] };
       }
@@ -110,14 +110,14 @@
     try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) {}
   }
   function configKeyStr() {
-    var v = config.mode === "time" ? config.timeLimit : config.snippetCount;
+    let v = config.mode === "time" ? config.timeLimit : config.snippetCount;
     return config.language + ":" + config.mode + ":" + v;
   }
 
   /* ---------- snippet handling ---------- */
   function normalize(code) {
-    var lines = code.replace(/\t/g, "  ").split("\n");
-    for (var i = 0; i < lines.length; i++) {
+    let lines = code.replace(/\t/g, "  ").split("\n");
+    for (let i = 0; i < lines.length; i++) {
       lines[i] = lines[i].replace(/\s+$/, ""); // strip trailing whitespace
     }
     while (lines.length && lines[0] === "") lines.shift();
@@ -125,10 +125,10 @@
     return lines.join("\n");
   }
 
-  var lastSnippetIndex = -1;
+  let lastSnippetIndex = -1;
   function pickSnippet() {
-    var pool = SNIPPETS[config.language] || SNIPPETS.javascript;
-    var idx = Math.floor(Math.random() * pool.length);
+    let pool = SNIPPETS[config.language] || SNIPPETS.javascript;
+    let idx = Math.floor(Math.random() * pool.length);
     if (pool.length > 1 && idx === lastSnippetIndex) {
       idx = (idx + 1) % pool.length;
     }
@@ -143,10 +143,10 @@
     st.chars = [];
     st.charState = [];
     st.auto = [];
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < target.length; i++) {
-      var ch = target[i];
-      var span = document.createElement("span");
+    let frag = document.createDocumentFragment();
+    for (let i = 0; i < target.length; i++) {
+      let ch = target[i];
+      let span = document.createElement("span");
       span.className = "ch";
       if (ch === "\n") {
         span.classList.add("nl");
@@ -166,23 +166,23 @@
   }
 
   function paint(i) {
-    var span = st.chars[i];
+    let span = st.chars[i];
     if (!span) return;
     span.classList.remove("correct", "incorrect");
-    var s = st.charState[i];
+    let s = st.charState[i];
     if (s === "correct") span.classList.add("correct");
     else if (s === "incorrect") span.classList.add("incorrect");
   }
 
   function updateCaret() {
-    var idx = st.pos;
-    var atEnd = idx >= st.chars.length;
-    var ref = atEnd ? st.chars[st.chars.length - 1] : st.chars[idx];
+    let idx = st.pos;
+    let atEnd = idx >= st.chars.length;
+    let ref = atEnd ? st.chars[st.chars.length - 1] : st.chars[idx];
     if (!ref) { el.caret.style.left = "0px"; el.caret.style.top = "0px"; return; }
-    var base = el.display.getBoundingClientRect();
-    var r = ref.getBoundingClientRect();
-    var x = (atEnd ? r.right : r.left) - base.left + el.display.scrollLeft;
-    var y = r.top - base.top + el.display.scrollTop;
+    let base = el.display.getBoundingClientRect();
+    let r = ref.getBoundingClientRect();
+    let x = (atEnd ? r.right : r.left) - base.left + el.display.scrollLeft;
+    let y = r.top - base.top + el.display.scrollTop;
     el.caret.style.left = x + "px";
     el.caret.style.top = y + "px";
     // keep caret in view for tall snippets
@@ -196,7 +196,7 @@
   /* ---------- auto-indent ---------- */
   function skipAutoIndent() {
     while (st.pos < st.target.length) {
-      var c = st.target[st.pos];
+      let c = st.target[st.pos];
       if (c === " " || c === "\t") {
         st.charState[st.pos] = "correct";
         st.auto[st.pos] = true;
@@ -211,7 +211,7 @@
   /* ---------- test lifecycle ---------- */
   function loadTest(keepSnippet) {
     if (st && st.timerId) clearInterval(st.timerId);
-    var prevTarget = st && keepSnippet ? st.target : null;
+    let prevTarget = st && keepSnippet ? st.target : null;
     st = freshState();
     st.target = prevTarget || pickSnippet();
     renderCode(st.target);
@@ -245,9 +245,9 @@
   }
 
   function tick() {
-    var elapsed = elapsedSec();
+    let elapsed = elapsedSec();
     updateLive();
-    var sec = Math.floor(elapsed);
+    let sec = Math.floor(elapsed);
     if (sec > st.lastSecond) {
       st.lastSecond = sec;
       st.samples.push({ t: sec, wpm: netWpm(), raw: rawWpm(), errors: st.errorsThisSecond });
@@ -262,7 +262,7 @@
   function typeChar(ch) {
     if (st.finished) return;
     if (!st.started) start();
-    var exp = st.target[st.pos];
+    let exp = st.target[st.pos];
     if (exp === undefined) return;
     if (exp === "\n") {
       // a newline is owed: typing a normal char is a miss, no advance
@@ -273,7 +273,7 @@
       updateLive();
       return;
     }
-    var ok = ch === exp;
+    let ok = ch === exp;
     st.charState[st.pos] = ok ? "correct" : "incorrect";
     paint(st.pos);
     if (ok) st.correct++;
@@ -285,7 +285,7 @@
   function typeNewline() {
     if (st.finished) return;
     if (!st.started) start();
-    var exp = st.target[st.pos];
+    let exp = st.target[st.pos];
     if (exp === undefined) return;
     if (exp === "\n") {
       st.charState[st.pos] = "correct";
@@ -341,35 +341,35 @@
   /* ---------- stats math ---------- */
   function elapsedSec() { return (performance.now() - st.startTime) / 1000; }
   function netWpm() {
-    var m = elapsedSec() / 60;
+    let m = elapsedSec() / 60;
     return m > 0 ? (st.correct / 5) / m : 0;
   }
   function rawWpm() {
-    var m = elapsedSec() / 60;
+    let m = elapsedSec() / 60;
     return m > 0 ? ((st.correct + st.incorrect) / 5) / m : 0;
   }
   function accuracy() {
-    var total = st.correct + st.incorrect;
+    let total = st.correct + st.incorrect;
     return total > 0 ? (st.correct / total) * 100 : 100;
   }
   function consistency() {
-    var vals = st.samples.map(function (s) { return s.raw; }).filter(function (v) { return v > 0; });
+    let vals = st.samples.map(function (s) { return s.raw; }).filter(function (v) { return v > 0; });
     if (vals.length < 2) return 100;
-    var mean = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+    let mean = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
     if (mean === 0) return 0;
-    var variance = vals.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / vals.length;
-    var cv = Math.sqrt(variance) / mean;
+    let variance = vals.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / vals.length;
+    let cv = Math.sqrt(variance) / mean;
     return Math.max(0, Math.min(100, (1 - cv) * 100));
   }
 
   /* ---------- live display ---------- */
   function updateProgress() {
     if (config.mode === "time") {
-      var remaining = config.timeLimit;
+      let remaining = config.timeLimit;
       if (st.started) remaining = Math.max(0, Math.ceil(config.timeLimit - elapsedSec()));
       el.liveProgress.textContent = String(remaining);
     } else {
-      var current = Math.min(st.snippetsDone + 1, config.snippetCount);
+      let current = Math.min(st.snippetsDone + 1, config.snippetCount);
       el.liveProgress.textContent = current + "/" + config.snippetCount;
     }
   }
@@ -388,11 +388,11 @@
     // capture a final sample
     st.samples.push({ t: elapsedSec(), wpm: netWpm(), raw: rawWpm(), errors: st.errorsThisSecond });
 
-    var wpm = Math.round(netWpm());
-    var raw = Math.round(rawWpm());
-    var acc = Math.round(accuracy());
-    var cons = Math.round(consistency());
-    var secs = elapsedSec();
+    let wpm = Math.round(netWpm());
+    let raw = Math.round(rawWpm());
+    let acc = Math.round(accuracy());
+    let cons = Math.round(consistency());
+    let secs = elapsedSec();
 
     el.rWpm.textContent = wpm;
     el.rAcc.textContent = acc + "%";
@@ -402,7 +402,7 @@
     el.rTime.textContent = secs.toFixed(1) + "s";
     el.rTest.textContent = testLabel();
 
-    var record = recordResult(wpm, acc, raw, cons);
+    let record = recordResult(wpm, acc, raw, cons);
     el.rPb.textContent = record.pb ? record.pb.wpm + " wpm" : "—";
     el.pbFlag.hidden = !record.isNewPb;
 
@@ -412,21 +412,21 @@
   }
 
   function testLabel() {
-    var v = config.mode === "time" ? config.timeLimit + "s" : config.snippetCount + " snip";
+    let v = config.mode === "time" ? config.timeLimit + "s" : config.snippetCount + " snip";
     return langName(config.language) + " · " + v;
   }
   function langName(id) {
-    for (var i = 0; i < LANGUAGES.length; i++) {
+    for (let i = 0; i < LANGUAGES.length; i++) {
       if (LANGUAGES[i].id === id) return LANGUAGES[i].name;
     }
     return id;
   }
 
   function recordResult(wpm, acc, raw, cons) {
-    var stats = loadStats();
-    var key = configKeyStr();
-    var prev = stats.pb[key];
-    var isNewPb = !prev || wpm > prev.wpm;
+    let stats = loadStats();
+    let key = configKeyStr();
+    let prev = stats.pb[key];
+    let isNewPb = !prev || wpm > prev.wpm;
     if (isNewPb) {
       stats.pb[key] = { wpm: wpm, acc: acc, date: Date.now() };
     }
@@ -444,32 +444,32 @@
 
   /* ---------- graph ---------- */
   function drawGraph(samples) {
-    var canvas = el.graph;
-    var rect = canvas.getBoundingClientRect();
+    let canvas = el.graph;
+    let rect = canvas.getBoundingClientRect();
     if (rect.width === 0) { setTimeout(function () { drawGraph(samples); }, 50); return; }
-    var dpr = window.devicePixelRatio || 1;
+    let dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(rect.width * dpr);
     canvas.height = Math.round(rect.height * dpr);
-    var ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var W = rect.width, H = rect.height;
+    let W = rect.width, H = rect.height;
     ctx.clearRect(0, 0, W, H);
 
-    var padL = 36, padR = 12, padT = 14, padB = 22;
-    var plotW = W - padL - padR;
-    var plotH = H - padT - padB;
+    let padL = 36, padR = 12, padT = 14, padB = 22;
+    let plotW = W - padL - padR;
+    let plotH = H - padT - padB;
 
-    var colSub = Themes.color("--sub");
-    var colAccent = Themes.color("--accent");
-    var colError = Themes.color("--error");
-    var colGrid = Themes.color("--sub-alt");
+    let colSub = Themes.color("--sub");
+    let colAccent = Themes.color("--accent");
+    let colError = Themes.color("--error");
+    let colGrid = Themes.color("--sub-alt");
 
-    var pts = samples.filter(function (s) { return isFinite(s.wpm); });
+    let pts = samples.filter(function (s) { return isFinite(s.wpm); });
     if (pts.length === 0) return;
     if (pts.length === 1) pts = [{ t: 0, wpm: pts[0].wpm, raw: pts[0].raw, errors: 0 }, pts[0]];
 
-    var maxWpm = 10;
-    var maxT = 0;
+    let maxWpm = 10;
+    let maxT = 0;
     pts.forEach(function (p) {
       maxWpm = Math.max(maxWpm, p.wpm, p.raw);
       maxT = Math.max(maxT, p.t);
@@ -486,10 +486,10 @@
     ctx.strokeStyle = colGrid;
     ctx.lineWidth = 1;
     ctx.globalAlpha = 0.4;
-    var steps = 4;
-    for (var i = 0; i <= steps; i++) {
-      var val = (maxWpm / steps) * i;
-      var y = py(val);
+    let steps = 4;
+    for (let i = 0; i <= steps; i++) {
+      let val = (maxWpm / steps) * i;
+      let y = py(val);
       ctx.beginPath();
       ctx.moveTo(padL, y);
       ctx.lineTo(W - padR, y);
@@ -510,7 +510,7 @@
     // error markers
     pts.forEach(function (p) {
       if (p.errors && p.errors > 0) {
-        var x = px(p.t), y = py(p.wpm);
+        let x = px(p.t), y = py(p.wpm);
         ctx.beginPath();
         ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + 3, y + 3);
         ctx.moveTo(x + 3, y - 3); ctx.lineTo(x - 3, y + 3);
@@ -535,7 +535,7 @@
     ctx.lineJoin = "round";
     ctx.beginPath();
     pts.forEach(function (p, i) {
-      var x = px(p.t), y = py(p[field]);
+      let x = px(p.t), y = py(p[field]);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
@@ -550,16 +550,16 @@
   }
   function closeHistoryDrawer() { el.historyDrawer.hidden = true; }
   function renderHistory() {
-    var stats = loadStats();
-    var h = stats.history || [];
+    let stats = loadStats();
+    let h = stats.history || [];
     if (h.length === 0) {
       el.historyBody.innerHTML = '<div class="history-empty">no tests yet — go type some code!</div>';
       return;
     }
-    var html = "";
-    for (var i = 0; i < h.length; i++) {
-      var r = h[i];
-      var v = r.mode === "time" ? r.value + "s" : r.value + " snip";
+    let html = "";
+    for (let i = 0; i < h.length; i++) {
+      let r = h[i];
+      let v = r.mode === "time" ? r.value + "s" : r.value + " snip";
       html +=
         '<div class="history-row">' +
           '<div class="h-meta">' +
@@ -574,18 +574,18 @@
   }
   function formatDate(ts) {
     try {
-      var d = new Date(ts);
+      let d = new Date(ts);
       return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     } catch (e) { return ""; }
   }
 
   /* ---------- config UI ---------- */
   function buildValueButtons() {
-    var values = config.mode === "time" ? TIME_VALUES : SNIPPET_VALUES;
-    var current = config.mode === "time" ? config.timeLimit : config.snippetCount;
+    let values = config.mode === "time" ? TIME_VALUES : SNIPPET_VALUES;
+    let current = config.mode === "time" ? config.timeLimit : config.snippetCount;
     el.valueGroup.innerHTML = "";
     values.forEach(function (v) {
-      var b = document.createElement("button");
+      let b = document.createElement("button");
       b.className = "config-btn" + (v === current ? " active" : "");
       b.textContent = String(v);
       b.dataset.value = v;
@@ -595,7 +595,7 @@
   function buildLangButtons() {
     el.langGroup.innerHTML = "";
     LANGUAGES.forEach(function (l) {
-      var b = document.createElement("button");
+      let b = document.createElement("button");
       b.className = "config-btn" + (l.id === config.language ? " active" : "");
       b.textContent = l.name;
       b.dataset.lang = l.id;
@@ -605,14 +605,14 @@
   function buildThemeOptions() {
     el.themeSelect.innerHTML = "";
     Themes.list.forEach(function (t) {
-      var o = document.createElement("option");
+      let o = document.createElement("option");
       o.value = t.id;
       o.textContent = t.name;
       el.themeSelect.appendChild(o);
     });
   }
   function syncModeButtons() {
-    var btns = el.modeGroup.querySelectorAll("[data-mode]");
+    let btns = el.modeGroup.querySelectorAll("[data-mode]");
     btns.forEach(function (b) {
       b.classList.toggle("active", b.dataset.mode === config.mode);
     });
@@ -620,7 +620,7 @@
 
   /* ---------- key handling ---------- */
   function onKeyDown(e) {
-    var tag = e.target && e.target.tagName;
+    let tag = e.target && e.target.tagName;
     if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
@@ -647,7 +647,7 @@
   /* ---------- wiring ---------- */
   function wire() {
     el.modeGroup.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-mode]");
+      let btn = e.target.closest("[data-mode]");
       if (!btn) return;
       config.mode = btn.dataset.mode;
       saveConfig();
@@ -658,9 +658,9 @@
     });
 
     el.valueGroup.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-value]");
+      let btn = e.target.closest("[data-value]");
       if (!btn) return;
-      var v = parseInt(btn.dataset.value, 10);
+      let v = parseInt(btn.dataset.value, 10);
       if (config.mode === "time") config.timeLimit = v;
       else config.snippetCount = v;
       saveConfig();
@@ -670,7 +670,7 @@
     });
 
     el.langGroup.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-lang]");
+      let btn = e.target.closest("[data-lang]");
       if (!btn) return;
       config.language = btn.dataset.lang;
       saveConfig();
@@ -691,7 +691,7 @@
     el.historyToggle.addEventListener("click", openHistory);
     el.closeHistory.addEventListener("click", closeHistoryDrawer);
     el.clearHistory.addEventListener("click", function () {
-      var stats = loadStats();
+      let stats = loadStats();
       stats.history = [];
       saveStats(stats);
       renderHistory();
@@ -709,7 +709,7 @@
   function init() {
     cacheEls();
     loadConfig();
-    var theme = Themes.load();
+    let theme = Themes.load();
     Themes.apply(theme);
     buildThemeOptions();
     el.themeSelect.value = theme;
