@@ -74,6 +74,11 @@ real typing — not how many spaces you can hammer.
 
 > Input comes from a physical keyboard, so codemonkey is built for desktop.
 
+**Non‑QWERTY layouts** (QWERTZ, AZERTY, Dvorak…) are supported: a keystroke counts
+as correct if it produces the expected character **or** comes from the physical key
+that types it on a US‑QWERTY board — so you can touch‑type by position. `AltGr`
+symbols (`{ } [ ] @ \`) are handled too.
+
 ## Run it locally
 
 It's a static site — nothing to install or build.

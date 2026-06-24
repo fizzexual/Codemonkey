@@ -259,7 +259,7 @@
   }
 
   /* ---------- typing handlers ---------- */
-  function typeChar(ch) {
+  function typeChar(e) {
     if (st.finished) return;
     if (!st.started) start();
     let exp = st.target[st.pos];
@@ -273,7 +273,7 @@
       updateLive();
       return;
     }
-    let ok = ch === exp;
+    let ok = keystrokeMatches(e, exp);
     st.charState[st.pos] = ok ? "correct" : "incorrect";
     paint(st.pos);
     if (ok) st.correct++;
@@ -618,11 +618,51 @@
     });
   }
 
+  /* ---------- keyboard-layout-agnostic matching ----------
+     A keystroke counts as correct if the produced character matches (the normal
+     case, incl. AltGr symbols) OR if the physical key (event.code) is the
+     US-QWERTY key for the expected character. That lets QWERTZ/AZERTY/Dvorak
+     users type code by physical position — e.g. the key where '=' sits on a US
+     keyboard counts as '=' even if that key prints '+' on their layout. */
+  const US_LAYOUT = {
+    KeyA: "aA", KeyB: "bB", KeyC: "cC", KeyD: "dD", KeyE: "eE", KeyF: "fF", KeyG: "gG", KeyH: "hH",
+    KeyI: "iI", KeyJ: "jJ", KeyK: "kK", KeyL: "lL", KeyM: "mM", KeyN: "nN", KeyO: "oO", KeyP: "pP",
+    KeyQ: "qQ", KeyR: "rR", KeyS: "sS", KeyT: "tT", KeyU: "uU", KeyV: "vV", KeyW: "wW", KeyX: "xX",
+    KeyY: "yY", KeyZ: "zZ",
+    Digit1: "1!", Digit2: "2@", Digit3: "3#", Digit4: "4$", Digit5: "5%",
+    Digit6: "6^", Digit7: "7&", Digit8: "8*", Digit9: "9(", Digit0: "0)",
+    Minus: "-_", Equal: "=+", BracketLeft: "[{", BracketRight: "]}", Backslash: "\\|",
+    Semicolon: ";:", Quote: "'\"", Backquote: "`~", Comma: ",<", Period: ".>", Slash: "/?", Space: "  ",
+    Numpad0: "00", Numpad1: "11", Numpad2: "22", Numpad3: "33", Numpad4: "44", Numpad5: "55",
+    Numpad6: "66", Numpad7: "77", Numpad8: "88", Numpad9: "99",
+    NumpadDecimal: "..", NumpadAdd: "++", NumpadSubtract: "--", NumpadMultiply: "**", NumpadDivide: "//"
+  };
+  function usPositionChar(e) {
+    let pair = US_LAYOUT[e.code];
+    if (!pair) return null;
+    let lo = pair[0], hi = pair[1];
+    if (lo >= "a" && lo <= "z") {
+      // letter key: take case from the character actually produced (honours Shift + CapsLock)
+      let k = e.key;
+      let upper = k && k.length === 1 && k.toLowerCase() !== k.toUpperCase() && k === k.toUpperCase();
+      return upper ? hi : lo;
+    }
+    return e.shiftKey ? hi : lo;
+  }
+  function keystrokeMatches(e, exp) {
+    if (e.key === exp) return true;          // produced character matches (incl. AltGr symbols)
+    let p = usPositionChar(e);
+    return p !== null && p === exp;          // physical key matches the US-QWERTY position of exp
+  }
+
   /* ---------- key handling ---------- */
   function onKeyDown(e) {
     let tag = e.target && e.target.tagName;
     if (tag === "SELECT" || tag === "INPUT" || tag === "TEXTAREA") return;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // AltGr (used for { } [ ] @ \ etc. on QWERTZ/AZERTY) reports as Ctrl+Alt on
+    // Windows — let it through so those symbols are typable; block real shortcuts.
+    let altGraph = (e.getModifierState && e.getModifierState("AltGraph")) || (e.ctrlKey && e.altKey);
+    if ((e.ctrlKey || e.metaKey || e.altKey) && !altGraph) return;
 
     // an open panel swallows typing; Escape closes it
     if (!el.historyDrawer.hidden) {
@@ -640,7 +680,7 @@
     if (e.key === "Escape") { e.preventDefault(); loadTest(false); return; }
     if (e.key === "Backspace") { e.preventDefault(); doBackspace(); return; }
     if (e.key === "Enter") { e.preventDefault(); typeNewline(); return; }
-    if (e.key.length === 1) { e.preventDefault(); typeChar(e.key); return; }
+    if (e.key.length === 1 || usPositionChar(e) !== null) { e.preventDefault(); typeChar(e); return; }
     // ignore everything else (arrows, function keys, modifiers alone)
   }
 
