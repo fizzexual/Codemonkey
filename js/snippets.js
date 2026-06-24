@@ -16,5 +16,6 @@ window.LANGUAGES = [
   { id: "rust",       name: "rust" },
   { id: "sql",        name: "sql" },
   { id: "bash",       name: "bash" },
-  { id: "quotes",     name: "quotes" }
+  { id: "quotes",     name: "quotes" },
+  { id: "sprout",     name: "sprout" }
 ];
