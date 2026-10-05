@@ -2,7 +2,7 @@
 
 <img src="https://fizzexual.github.io/Codemonkey/og-image.svg" alt="codemonkey — a typing test for code" width="100%" />
 
-# 🐒 codemonkey
+# 🐒 codemonkey 🍂
 
 **[Monkeytype](https://monkeytype.com), but for code.**
 A minimalist typing‑speed test where you type real code snippets and measure your
@@ -21,6 +21,12 @@ A minimalist typing‑speed test where you type real code snippets and measure y
 ⭐ **If you enjoy it, a star helps a lot** — I'm a student, and it genuinely makes a difference.
 
 </div>
+
+---
+
+## About
+
+Codemonkey is a browser typing test for programmers who want to practise typing real code instead of prose. It is a static site in plain HTML, CSS and JavaScript with no build step and no backend, hosted on GitHub Pages. Status: working and live; a small personal project with hand-written snippets in 9 languages.
 
 ---
 
