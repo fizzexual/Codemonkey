@@ -158,3 +158,5 @@ it genuinely means a lot. Thank you 🙏
 ## License
 
 [MIT](LICENSE) © fizzexual
+
+See also: [CONTRIBUTING](CONTRIBUTING.md) · [SECURITY](SECURITY.md) · [CHANGELOG](CHANGELOG.md)
