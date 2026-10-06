@@ -10,6 +10,8 @@ A minimalist typing‑speed test where you type real code snippets and measure y
 
 ### [▶ Try it live](https://fizzexual.github.io/Codemonkey/)
 
+<img src=".github/assets/screenshot.png" alt="codemonkey typing test with a JavaScript snippet" width="100%" />
+
 [![live demo](https://img.shields.io/badge/live-demo-e2b714?style=flat-square)](https://fizzexual.github.io/Codemonkey/)
 ![no build step](https://img.shields.io/badge/build-none-4b4d50?style=flat-square)
 ![vanilla js](https://img.shields.io/badge/vanilla-JS-f7df1e?style=flat-square&labelColor=323437)
