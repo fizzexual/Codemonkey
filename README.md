@@ -28,7 +28,7 @@ A minimalist typing‑speed test where you type real code snippets and measure y
 
 ## About
 
-Codemonkey is a browser typing test for programmers who want to practise typing real code instead of prose. It is a static site in plain HTML, CSS and JavaScript with no build step and no backend, hosted on GitHub Pages. Status: working and live; a small personal project with hand-written snippets in 9 languages.
+Codemonkey is a browser typing test for programmers who want to practise typing real code instead of prose. It is a static site in plain HTML, CSS and JavaScript with no build step and no backend, hosted on GitHub Pages. Status: working and live; a small personal project with hand-written snippets in 10 languages.
 
 ---
 
@@ -41,8 +41,8 @@ way Monkeytype does for words.
 
 ## Features
 
-- **A near‑endless pool of correct content** — **274 hand‑written code snippets across 9 languages**
-  (JavaScript · Python · TypeScript · Java · C++ · Go · Rust · SQL · Bash), each verified to compile or
+- **A near‑endless pool of correct content** — **281 hand‑written code snippets across 10 languages**
+  (JavaScript · Python · TypeScript · Java · C++ · Go · Rust · SQL · Bash · [Sprout](https://github.com/fizzexual/Sprout)), the mainstream ones each verified to compile or
   parse, **plus a `quotes` mode** of 70 famous programming & wisdom lines. No immediate repeats, and the
   pool is trivially extensible — drop a string in a file and it shows up.
 - **Smart auto‑indentation** — press `Enter` and the next line's leading whitespace is
